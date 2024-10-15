@@ -17,11 +17,13 @@ import { sampleDataType } from "@/types/sample-data";
 import { ColumnGroupingModal } from "./column-grouping-selector";
 import { ShowOrHideColumns } from "./column-visibility-toggle";
 import { SortOptionsModal } from "./sort-options-modal";
+import { Filters } from "./filters";
 
 interface ModalState {
   grouping: boolean;
   showOrHideColumn: boolean;
   sorting: boolean;
+  filtering: boolean;
 }
 type ModalName = keyof ModalState;
 
@@ -55,6 +57,7 @@ const TableLandingPage = () => {
     grouping: false,
     showOrHideColumn: false,
     sorting: false,
+    filtering: false,
   });
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -264,6 +267,14 @@ const TableLandingPage = () => {
           sortSections={sortSections}
           setSortSections={setSortSections}
           tableInstance={table}
+        />
+      )}
+      {modalState.filtering && (
+        <Filters
+          isOpen={modalState.filtering}
+          onClose={() => closeModal("filtering")}
+          // filterSections={filterSections}
+          // setFilterSections={setFilterSections}
         />
       )}
       {modalState.grouping && (
