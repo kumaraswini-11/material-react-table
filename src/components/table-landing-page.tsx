@@ -8,29 +8,54 @@ import {
   useMaterialReactTable,
 } from "material-react-table";
 import { format } from "date-fns";
-import {
-  Box,
-  IconButton,
-  Tooltip,
-  Typography,
-  Pagination,
-  TextField,
-  InputAdornment,
-} from "@mui/material";
+import { Box, IconButton, Tooltip, Pagination } from "@mui/material";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import SwapVertOutlinedIcon from "@mui/icons-material/SwapVertOutlined";
 import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import { sampleDataType } from "@/types/sample-data";
 import { ColumnGroupingModal } from "./column-grouping-selector";
 import { ShowOrHideColumns } from "./column-visibility-toggle";
+import { SortOptionsModal } from "./sort-options-modal";
+
+interface ModalState {
+  grouping: boolean;
+  showOrHideColumn: boolean;
+  sorting: boolean;
+}
+type ModalName = keyof ModalState;
 
 const RECORDS_PER_PAGE = 10;
+const MODAL_BUTTONS = [
+  {
+    title: "Show/Hide",
+    icon: <RemoveRedEyeOutlinedIcon sx={{ color: "#6c757d", fontSize: 24 }} />,
+    modalName: "showOrHideColumn",
+  },
+  {
+    title: "Sort",
+    icon: <SwapVertOutlinedIcon sx={{ color: "#6c757d", fontSize: 24 }} />,
+    modalName: "sorting",
+  },
+  {
+    title: "Filtering",
+    icon: <FilterListOutlinedIcon sx={{ color: "#6c757d", fontSize: 24 }} />,
+    modalName: "filtering",
+  },
+  {
+    title: "Create Groups",
+    icon: <LayersOutlinedIcon sx={{ color: "#6c757d", fontSize: 24 }} />,
+    modalName: "grouping",
+  },
+];
 
 const TableLandingPage = () => {
   const [sampleData, setSampleData] = useState<sampleDataType[]>([]);
+  const [modalState, setModalState] = useState<ModalState>({
+    grouping: false,
+    showOrHideColumn: false,
+    sorting: false,
+  });
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: RECORDS_PER_PAGE,
@@ -45,16 +70,35 @@ const TableLandingPage = () => {
     price: true,
     sale_price: true,
   });
+  const [sortSections, setSortSections] = useState<any[]>([
+    { label: "ID", isSort: false },
+    { label: "Name", isSort: false },
+    { label: "Category", isSort: false },
+    { label: "Subcategory", isSort: false },
+    { label: "Created At", isSort: false },
+    { label: "Updated At", isSort: false },
+    { label: "Price", isSort: false },
+    { label: "Sale Price", isSort: false },
+  ]);
   const [groupByColumn, setGroupByColumn] = useState<string[]>([]);
-  const [isGroupClicked, setIsGroupClicked] = useState(false);
-  const [isShowAllColumnsClicked, setIsShowAllColumnsClicked] = useState(false);
-  // const [globalFilter, setGlobalFilter] = useState("");
+
+  const openModal = (modalName: ModalName) => {
+    setModalState((prev) => ({ ...prev, [modalName]: true }));
+  };
+
+  const closeModal = (modalName: ModalName) => {
+    setModalState((prev) => ({ ...prev, [modalName]: false }));
+  };
 
   useEffect(() => {
     const fetchStaticSampleData = async () => {
-      const response = await fetch("/sample-data.json");
-      const data = await response.json();
-      setSampleData(data);
+      try {
+        const response = await fetch("/sample-data.json");
+        const data = await response.json();
+        setSampleData(data);
+      } catch (error) {
+        console.error("Error fetching sample data:", error);
+      }
     };
 
     fetchStaticSampleData();
@@ -112,15 +156,10 @@ const TableLandingPage = () => {
     []
   );
 
-  // Initialize Material React Table
   const table = useMaterialReactTable({
     columns,
     data: sampleData,
-    // state: {
-    //   globalFilter,
-    // },
-    // onGlobalFilterChange: setGlobalFilter,
-    // globalFilterFn: "fuzzy",
+    globalFilterFn: "fuzzy",
     initialState: {
       pagination: pagination,
       showGlobalFilter: true,
@@ -128,9 +167,16 @@ const TableLandingPage = () => {
       grouping: groupByColumn,
     },
 
+    state: {
+      columnVisibility,
+      grouping: groupByColumn,
+      pagination,
+      sorting: sortSections,
+    },
     onGroupingChange: (newGrouping) => setGroupByColumn(newGrouping),
     onColumnVisibilityChange: setColumnVisibility,
-    state: { columnVisibility, grouping: groupByColumn, pagination },
+    isMultiSortEvent: () => true,
+    onSortingChange: setSortSections,
 
     enablePagination: true,
     enableSorting: true,
@@ -142,7 +188,6 @@ const TableLandingPage = () => {
     enableColumnDragging: false,
     groupedColumnMode: "reorder",
     // enableColumnFilters: false,
-    // positionToolbarAlertBanner: 'bottom', //show selected rows count on bottom toolbar
 
     muiTableBodyRowProps: { hover: false },
     muiTablePaperProps: {
@@ -165,10 +210,8 @@ const TableLandingPage = () => {
         paddingTop: 1,
         paddingBottom: 1,
         paddingLeft: 2.5,
-        // textAlign: "center",
       },
     },
-
     muiTableFooterProps: {
       sx: {
         border: "none",
@@ -182,34 +225,6 @@ const TableLandingPage = () => {
       {/* Table Header with custom buttons */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
         <Box sx={{ display: "flex", gap: "6px" }}>
-          {/* Custom toolbar buttons */}
-          {/* <TextField
-            variant="outlined"
-            value={globalFilter ?? ""}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            placeholder="Search"
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    {globalFilter && (
-                      <IconButton
-                        onClick={() => setGlobalFilter("")}
-                        sx={{ color: "gray", width: 10, fontSize: 10 }}
-                      >
-                        <CloseOutlinedIcon />
-                      </IconButton>
-                    )}
-                  </InputAdornment>
-                ),
-              },
-            }}
-            sx={{
-              width: "230px",
-              borderRadius: 2,
-              boxShadow: "none",
-            }}
-          /> */}
           <MRT_GlobalFilterTextField
             table={table}
             placeholder="Search"
@@ -220,32 +235,13 @@ const TableLandingPage = () => {
               },
             }}
           />
-
-          <Tooltip title="Group">
-            <IconButton onClick={() => setIsGroupClicked(true)}>
-              <RemoveRedEyeOutlinedIcon
-                sx={{ color: "#6c757d", fontSize: 24 }}
-              />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Sort">
-            <IconButton onClick={() => console.log("Sort clicked")}>
-              <SwapVertOutlinedIcon sx={{ color: "#6c757d", fontSize: 24 }} />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Filter">
-            <IconButton onClick={() => setIsShowAllColumnsClicked(true)}>
-              <FilterListOutlinedIcon sx={{ color: "#6c757d", fontSize: 24 }} />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Layer">
-            <IconButton onClick={() => console.log("Layer clicked")}>
-              <LayersOutlinedIcon sx={{ color: "#6c757d", fontSize: 24 }} />
-            </IconButton>
-          </Tooltip>
+          {MODAL_BUTTONS.map(({ title, icon, modalName }) => (
+            <Tooltip title={title} key={modalName}>
+              <IconButton onClick={() => openModal(modalName as ModalName)}>
+                {icon}
+              </IconButton>
+            </Tooltip>
+          ))}
         </Box>
       </Box>
 
@@ -253,17 +249,28 @@ const TableLandingPage = () => {
       <MaterialReactTable table={table} />
 
       {/* Popups */}
-      {isGroupClicked && (
-        <ColumnGroupingModal
-          isOpen={isGroupClicked}
-          onClose={() => setIsGroupClicked(false)}
-          setGroupByColumn={setGroupByColumn}
-        />
-      )}
-      {isShowAllColumnsClicked && (
+      {modalState.showOrHideColumn && (
         <ShowOrHideColumns
+          isOpen={modalState.showOrHideColumn}
+          onClose={() => closeModal("showOrHideColumn")}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
+        />
+      )}
+      {modalState.sorting && (
+        <SortOptionsModal
+          isOpen={modalState.sorting}
+          onClose={() => closeModal("sorting")}
+          sortSections={sortSections}
+          setSortSections={setSortSections}
+          tableInstance={table}
+        />
+      )}
+      {modalState.grouping && (
+        <ColumnGroupingModal
+          isOpen={modalState.grouping}
+          onClose={() => closeModal("grouping")}
+          setGroupByColumn={setGroupByColumn}
         />
       )}
 
@@ -279,7 +286,7 @@ const TableLandingPage = () => {
           count={Math.ceil(sampleData.length / pagination?.pageSize)}
           shape="rounded"
           color="standard"
-          page={table.getState().pagination.pageIndex + 1}
+          page={pagination.pageIndex + 1}
           onChange={(_, page) =>
             setPagination({ ...pagination, pageIndex: page - 1 })
           }

@@ -13,19 +13,18 @@ export const ColumnGroupingModal: React.FC<ColumnGroupingModalProps> = ({
   onClose,
   setGroupByColumn,
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(true);
   const [selectedColumn, setSelectedColumn] = useState<string>("");
 
   const handleSelectChange = (event: React.ChangeEvent<{ value: string }>) => {
     setSelectedColumn(event.target.value);
   };
 
-  const clearGrouping = () => {
+  const handleClearGrouping = () => {
     setSelectedColumn("");
     // setGroupByColumn("");
   };
 
-  const applyGrouping = () => {
+  const handleApplyGrouping = () => {
     if (selectedColumn) {
       setGroupByColumn([selectedColumn.toLowerCase()]);
       onClose();
@@ -34,24 +33,24 @@ export const ColumnGroupingModal: React.FC<ColumnGroupingModalProps> = ({
 
   return (
     <PopupModal
-      isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
+      isOpen={isOpen}
+      onClose={onClose}
       title="Create Groups"
       actionButtons={[
         {
           label: "Clear grouping",
-          onClick: clearGrouping,
+          onClick: handleClearGrouping,
           variant: "outlined",
         },
         {
           label: "Apply grouping",
-          onClick: applyGrouping,
+          onClick: handleApplyGrouping,
           variant: "contained",
         },
       ]}
     >
       <Select
-        inputProps={{ "aria-label": "Without label" }}
+        inputProps={{ "aria-label": "Select a column to group by" }}
         displayEmpty
         value={selectedColumn}
         renderValue={(selected) => {

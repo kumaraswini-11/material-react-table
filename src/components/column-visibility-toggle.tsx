@@ -2,10 +2,28 @@ import { useState } from "react";
 import { Box, Switch, Typography } from "@mui/material";
 import { PopupModal } from "./side-drawer-modal";
 
+export type ColumnVisibilityType = {
+  id: boolean;
+  name: boolean;
+  category: boolean;
+  subcategory: boolean;
+  createdAt: boolean;
+  updatedAt: boolean;
+  price: boolean;
+  sale_price: boolean;
+};
+
 interface SwitchSectionProps {
   label: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+}
+
+interface ShowOrHideColumnsProps {
+  isOpen: boolean;
+  onClose: () => void;
+  columnVisibility: ColumnVisibilityType; // Use boolean visibility map
+  setColumnVisibility: (visibility: ColumnVisibilityType) => void;
 }
 
 const SwitchSection: React.FC<SwitchSectionProps> = ({
@@ -35,25 +53,41 @@ const SwitchSection: React.FC<SwitchSectionProps> = ({
   </Box>
 );
 
-export const ShowOrHideColumns: React.FC<any> = ({
+export const ShowOrHideColumns: React.FC<ShowOrHideColumnsProps> = ({
+  isOpen,
+  onClose,
   columnVisibility,
   setColumnVisibility,
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(true);
-  const [tempSections, setTempSections] = useState<
+  const [tempSections, setTempSections] = useState([
+    { label: "ID", field: "id", checked: columnVisibility.id },
+    { label: "Name", field: "name", checked: columnVisibility.name },
     {
-      label: string;
-      checked: boolean;
-    }[]
-  >([
-    { label: "ID", checked: columnVisibility.id },
-    { label: "Name", checked: columnVisibility.name },
-    { label: "Category", checked: columnVisibility.category },
-    { label: "Subcategory", checked: columnVisibility.subcategory },
-    { label: "Created At", checked: columnVisibility.createdAt },
-    { label: "Updated At", checked: columnVisibility.updatedAt },
-    { label: "Price", checked: columnVisibility.price },
-    { label: "Sale Price", checked: columnVisibility.sale_price },
+      label: "Category",
+      field: "category",
+      checked: columnVisibility.category,
+    },
+    {
+      label: "Subcategory",
+      field: "subcategory",
+      checked: columnVisibility.subcategory,
+    },
+    {
+      label: "Created At",
+      field: "createdAt",
+      checked: columnVisibility.createdAt,
+    },
+    {
+      label: "Updated At",
+      field: "updatedAt",
+      checked: columnVisibility.updatedAt,
+    },
+    { label: "Price", field: "price", checked: columnVisibility.price },
+    {
+      label: "Sale Price",
+      field: "sale_price",
+      checked: columnVisibility.sale_price,
+    },
   ]);
 
   const toggleSwitch = (index: number, checked: boolean) => {
@@ -74,19 +108,20 @@ export const ShowOrHideColumns: React.FC<any> = ({
 
   const apply = () => {
     const updatedVisibility = tempSections.reduce((acc, section) => {
-      acc[section.label.toLowerCase().replace(/ /g, "_")] = section.checked;
+      const field = section.field as keyof ColumnVisibilityType;
+      acc[field] = section.checked;
       return acc;
-    }, {} as { [key: string]: boolean });
+    }, {} as ColumnVisibilityType);
 
     setColumnVisibility(updatedVisibility);
-    setIsModalOpen(false);
+    onClose();
   };
 
   return (
     <PopupModal
-      isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
-      title="Create Groups"
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Show/Hide Columns"
       actionButtons={[
         {
           label: "Show all columns",
