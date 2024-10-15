@@ -24,14 +24,32 @@ import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import { sampleDataType } from "@/types/sample-data";
+import { ColumnGroupingModal } from "./column-grouping-selector";
+import { ShowOrHideColumns } from "./column-visibility-toggle";
 
 const RECORDS_PER_PAGE = 10;
 
 const TableLandingPage = () => {
   const [sampleData, setSampleData] = useState<sampleDataType[]>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: RECORDS_PER_PAGE,
+  });
+  const [columnVisibility, setColumnVisibility] = useState<any>({
+    id: true,
+    name: true,
+    category: true,
+    subcategory: true,
+    createdAt: true,
+    updatedAt: true,
+    price: true,
+    sale_price: true,
+  });
+  const [groupByColumn, setGroupByColumn] = useState<string[]>([]);
+  const [isGroupClicked, setIsGroupClicked] = useState(false);
+  const [isShowAllColumnsClicked, setIsShowAllColumnsClicked] = useState(false);
+  // const [globalFilter, setGlobalFilter] = useState("");
 
-  // Fetch sample data
   useEffect(() => {
     const fetchStaticSampleData = async () => {
       const response = await fetch("/sample-data.json");
@@ -42,7 +60,6 @@ const TableLandingPage = () => {
     fetchStaticSampleData();
   }, []);
 
-  // Define columns for the table
   const columns = useMemo<MRT_ColumnDef<sampleDataType>[]>(
     () => [
       {
@@ -99,22 +116,31 @@ const TableLandingPage = () => {
   const table = useMaterialReactTable({
     columns,
     data: sampleData,
-    state: {
-      globalFilter,
-    },
-    onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: "fuzzy",
+    // state: {
+    //   globalFilter,
+    // },
+    // onGlobalFilterChange: setGlobalFilter,
+    // globalFilterFn: "fuzzy",
     initialState: {
+      pagination: pagination,
       showGlobalFilter: true,
-      pagination: { pageIndex: 0, pageSize: RECORDS_PER_PAGE },
       showColumnFilters: false,
+      grouping: groupByColumn,
     },
+
+    onGroupingChange: (newGrouping) => setGroupByColumn(newGrouping),
+    onColumnVisibilityChange: setColumnVisibility,
+    state: { columnVisibility, grouping: groupByColumn, pagination },
+
     enablePagination: true,
     enableSorting: true,
+    enableGrouping: true,
     enableTopToolbar: false,
     enableBottomToolbar: false,
     enableColumnActions: false,
     enableKeyboardShortcuts: false,
+    enableColumnDragging: false,
+    groupedColumnMode: "reorder",
     // enableColumnFilters: false,
     // positionToolbarAlertBanner: 'bottom', //show selected rows count on bottom toolbar
 
@@ -186,7 +212,7 @@ const TableLandingPage = () => {
           /> */}
           <MRT_GlobalFilterTextField
             table={table}
-            // placeholder="Search"
+            placeholder="Search"
             sx={{
               width: "250px",
               ".MuiInputBase-root": {
@@ -195,8 +221,8 @@ const TableLandingPage = () => {
             }}
           />
 
-          <Tooltip title="View">
-            <IconButton onClick={() => console.log("View clicked")}>
+          <Tooltip title="Group">
+            <IconButton onClick={() => setIsGroupClicked(true)}>
               <RemoveRedEyeOutlinedIcon
                 sx={{ color: "#6c757d", fontSize: 24 }}
               />
@@ -210,7 +236,7 @@ const TableLandingPage = () => {
           </Tooltip>
 
           <Tooltip title="Filter">
-            <IconButton onClick={() => console.log("Filter clicked")}>
+            <IconButton onClick={() => setIsShowAllColumnsClicked(true)}>
               <FilterListOutlinedIcon sx={{ color: "#6c757d", fontSize: 24 }} />
             </IconButton>
           </Tooltip>
@@ -226,6 +252,21 @@ const TableLandingPage = () => {
       {/* Main table */}
       <MaterialReactTable table={table} />
 
+      {/* Popups */}
+      {isGroupClicked && (
+        <ColumnGroupingModal
+          isOpen={isGroupClicked}
+          onClose={() => setIsGroupClicked(false)}
+          setGroupByColumn={setGroupByColumn}
+        />
+      )}
+      {isShowAllColumnsClicked && (
+        <ShowOrHideColumns
+          columnVisibility={columnVisibility}
+          setColumnVisibility={setColumnVisibility}
+        />
+      )}
+
       {/* Custom pagination */}
       <Box
         sx={{
@@ -235,11 +276,14 @@ const TableLandingPage = () => {
         }}
       >
         <Pagination
-          count={Math.ceil(sampleData.length / RECORDS_PER_PAGE)}
+          count={Math.ceil(sampleData.length / pagination?.pageSize)}
           shape="rounded"
           color="standard"
           page={table.getState().pagination.pageIndex + 1}
-          onChange={(_, page) => table.setPageIndex(page - 1)}
+          onChange={(_, page) =>
+            setPagination({ ...pagination, pageIndex: page - 1 })
+          }
+          // onChange={(_, page) => table.setPageIndex(page - 1)}
         />
       </Box>
     </Box>
