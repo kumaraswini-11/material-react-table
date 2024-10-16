@@ -5,10 +5,20 @@ import {
   MaterialReactTable,
   MRT_ColumnDef,
   MRT_GlobalFilterTextField,
+  MRT_TableContainer,
+  MRT_TableHeadCellFilterContainer,
   useMaterialReactTable,
 } from "material-react-table";
 import { format } from "date-fns";
-import { Box, IconButton, Tooltip, Pagination } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Tooltip,
+  Pagination,
+  Stack,
+  Paper,
+  useMediaQuery,
+} from "@mui/material";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import SwapVertOutlinedIcon from "@mui/icons-material/SwapVertOutlined";
 import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
@@ -17,7 +27,7 @@ import { sampleDataType } from "@/types/sample-data";
 import { ColumnGroupingModal } from "./column-grouping-selector";
 import { ShowOrHideColumns } from "./column-visibility-toggle";
 import { SortOptionsModal } from "./sort-options-modal";
-import { Filters } from "./filters";
+import { Filter, Filters } from "./filters";
 
 interface ModalState {
   grouping: boolean;
@@ -84,6 +94,8 @@ const TableLandingPage = () => {
     { label: "Sale Price", isSort: false },
   ]);
   const [groupByColumn, setGroupByColumn] = useState<string[]>([]);
+  const [filters, setFilters] = useState<Filter[]>([]);
+  const isMobile = useMediaQuery("(max-width: 1000px)");
 
   const openModal = (modalName: ModalName) => {
     setModalState((prev) => ({ ...prev, [modalName]: true }));
@@ -107,52 +119,106 @@ const TableLandingPage = () => {
     fetchStaticSampleData();
   }, []);
 
+  // const filteredData = useMemo(() => {
+  //   return sampleData.filter((row) => {
+  //     return filters.every((filter) => {
+  //       if (filter.type === "input") {
+  //         return row[filter.label.toLowerCase()]
+  //           ?.toString()
+  //           .toLowerCase()
+  //           .includes(filter.value.toString().toLowerCase());
+  //       } else if (filter.type === "select") {
+  //         return (
+  //           filter.value === "" ||
+  //           row[filter.label.toLowerCase()] === filter.value
+  //         );
+  //       } else if (filter.type === "slider-range") {
+  //         return (
+  //           row[filter.label.toLowerCase()] >= filter.value[0] &&
+  //           row[filter.label.toLowerCase()] <= filter.value[1]
+  //         );
+  //       } else if (filter.type === "date-range") {
+  //         const [startDate, endDate] = filter.value;
+  //         const rowDate = new Date(row[filter.label.toLowerCase()]);
+  //         return (
+  //           (!startDate || rowDate >= new Date(startDate)) &&
+  //           (!endDate || rowDate <= new Date(endDate))
+  //         );
+  //       }
+  //       return true;
+  //     });
+  //   });
+  // }, [sampleData, filters]);
+
+  const handleFiltersChange = (newFilters: Filter[]) => {
+    setFilters(newFilters);
+  };
+
   const columns = useMemo<MRT_ColumnDef<sampleDataType>[]>(
     () => [
       {
         accessorKey: "id",
         header: "ID",
+        filterVariant: "text",
+        filterFn: "equals",
         size: 50,
       },
       {
         accessorKey: "name",
         header: "Name",
+        filterVariant: "text",
+        filterFn: "fuzzy",
         size: 230,
       },
       {
         accessorKey: "category",
         header: "Category",
+        filterVariant: "select",
+        filterFn: "equals",
         size: 150,
       },
       {
         accessorKey: "subcategory",
         header: "Subcategory",
+        filterVariant: "select",
         size: 150,
       },
       {
         accessorKey: "createdAt",
         header: "Created At",
+        filterVariant: "date-range",
+        columnFilterModeOptions: ["between", "greaterThan", "lessThan"],
+        filterFn: "between",
         size: 100,
         // Format the date to DD-MMM-YY
         Cell: ({ cell }) =>
-          format(new Date(cell.getValue<string>()), "dd-MMM-yy"),
+          format(new Date(cell.getValue<Date>()), "dd-MMM-yy"),
       },
       {
         accessorKey: "updatedAt",
         header: "Updated At",
+        filterVariant: "date-range",
+        columnFilterModeOptions: ["between", "greaterThan", "lessThan"],
+        filterFn: "between",
         size: 100,
         // Format the date to DD-MMM-YY
         Cell: ({ cell }) =>
-          format(new Date(cell.getValue<string>()), "dd-MMM-yy"),
+          format(new Date(cell.getValue<Date>()), "dd-MMM-yy"),
       },
       {
         accessorKey: "price",
         header: "Price",
+        filterVariant: "range-slider",
+        columnFilterModeOptions: ["between", "greaterThan", "lessThan"],
+        filterFn: "between",
         size: 100,
       },
       {
         accessorKey: "sale_price",
         header: "Sale Price",
+        filterVariant: "range-slider",
+        columnFilterModeOptions: ["between", "greaterThan", "lessThan"],
+        filterFn: "between",
         size: 100,
       },
     ],
@@ -162,13 +228,28 @@ const TableLandingPage = () => {
   const table = useMaterialReactTable({
     columns,
     data: sampleData,
+    columnFilterDisplayMode: "custom",
     globalFilterFn: "fuzzy",
+
     initialState: {
       pagination: pagination,
       showGlobalFilter: true,
-      showColumnFilters: false,
       grouping: groupByColumn,
+      showColumnFilters: true,
     },
+
+    filterFns: {
+      customFilterFn: (row, id, filterValue) => {
+        return row.getValue(id) === filterValue;
+      },
+    },
+    localization: {
+      filterCustomFilterFn: "Custom Filter Fn",
+    } as any,
+
+    muiFilterTextFieldProps: ({ column }) => ({
+      label: `Filter by ${column.columnDef.header}`,
+    }),
 
     state: {
       columnVisibility,
@@ -181,6 +262,7 @@ const TableLandingPage = () => {
     isMultiSortEvent: () => true,
     onSortingChange: setSortSections,
 
+    enableFacetedValues: true,
     enablePagination: true,
     enableSorting: true,
     enableGrouping: true,
@@ -249,7 +331,25 @@ const TableLandingPage = () => {
       </Box>
 
       {/* Main table */}
-      <MaterialReactTable table={table} />
+      {/* <Stack direction={isMobile ? "column-reverse" : "row"} gap="8px">
+        <MRT_TableContainer table={table} />
+        <Paper>
+          <Stack p="8px" gap="8px">
+            {table.getLeafHeaders().map((header) => (
+              <MRT_TableHeadCellFilterContainer
+                key={header.id}
+                header={header}
+                table={table}
+                in
+              />
+            ))}
+          </Stack>
+        </Paper>
+      </Stack> */}
+      <MaterialReactTable
+        table={table}
+        // data={filteredData}
+      />
 
       {/* Popups */}
       {modalState.showOrHideColumn && (
@@ -273,8 +373,8 @@ const TableLandingPage = () => {
         <Filters
           isOpen={modalState.filtering}
           onClose={() => closeModal("filtering")}
-          // filterSections={filterSections}
-          // setFilterSections={setFilterSections}
+          filters={filters}
+          setFilters={handleFiltersChange}
         />
       )}
       {modalState.grouping && (

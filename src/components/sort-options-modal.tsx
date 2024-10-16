@@ -1,19 +1,12 @@
 import { Box, IconButton, Typography } from "@mui/material";
 import SwapVertOutlinedIcon from "@mui/icons-material/SwapVertOutlined";
+import { useState } from "react";
 import { PopupModal } from "./side-drawer-modal";
 
 interface SortSectionProps {
   label: string;
   isSort: boolean;
   onClick: () => void;
-}
-
-interface SortOptionsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  sortSections: { label: string; isSort: boolean }[];
-  setSortSections: (sections: any) => void;
-  tableInstance: any;
 }
 
 const SortOption: React.FC<SortSectionProps> = ({ label, isSort, onClick }) => (
@@ -26,7 +19,7 @@ const SortOption: React.FC<SortSectionProps> = ({ label, isSort, onClick }) => (
       borderRadius: "5px",
       display: "flex",
       alignItems: "center",
-      justifyContent: "flex-start",
+      ustifyContent: "flex-start",
       gap: 0.5,
       marginBottom: -1,
     }}
@@ -40,7 +33,7 @@ const SortOption: React.FC<SortSectionProps> = ({ label, isSort, onClick }) => (
   </Box>
 );
 
-export const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
+export const SortOptionsModal: React.FC<any> = ({
   isOpen,
   onClose,
   sortSections,
@@ -55,12 +48,6 @@ export const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
           : section
       )
     );
-
-    // Update sorting in the Material React Table
-    const column = tableInstance.getColumn(label);
-    if (column) {
-      column.toggleSorting();
-    }
   };
 
   const clearSort = () => {
