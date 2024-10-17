@@ -15,6 +15,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateRangePicker } from "@mui/x-date-pickers-pro";
 import { Dayjs } from "dayjs";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface FilterProps {
   isOpen: boolean;
   onClose: () => void;
@@ -40,7 +41,7 @@ export const FilterComponent: React.FC<FilterProps> = ({
     table.getRowModel().rows.forEach((row) => {
       const value = row.getValue(columnId);
       if (value) {
-        uniqueValues.add(value);
+        uniqueValues.add(String(value));
       }
     });
     return Array.from(uniqueValues);
@@ -49,18 +50,20 @@ export const FilterComponent: React.FC<FilterProps> = ({
   const getMinMaxValues = (columnId: string): [number, number] => {
     let min = Infinity;
     let max = -Infinity;
+
     table.getRowModel().rows.forEach((row) => {
       const value = row.getValue(columnId);
-      if (value !== undefined && value !== null) {
+      if (typeof value === "number") {
         min = Math.min(min, value);
         max = Math.max(max, value);
       }
     });
+
     return [min, max];
   };
 
-  const formatDate = (date: Dayjs | null) =>
-    date ? date.format("MM/DD/YYYY") : "";
+  // const formatDate = (date: Dayjs | null) =>
+  //   date ? date.format("MM/DD/YYYY") : "";
 
   const categoryOptions = useMemo(() => getUniqueValues("category"), [table]);
   const subcategoryOptions = useMemo(
@@ -273,20 +276,20 @@ export const FilterComponent: React.FC<FilterProps> = ({
                         "createdAtDateRange"
                       )
                     }
-                    renderInput={(startProps: any, endProps: any) => (
-                      <input
-                        {...startProps}
-                        value={
-                          filters.createdAtDateRange[0]
-                            ? `${formatDate(
-                                filters.createdAtDateRange[0]
-                              )} To ${formatDate(
-                                filters.createdAtDateRange[1]
-                              )}`
-                            : ""
-                        }
-                      />
-                    )}
+                    // renderInput={(startProps: any) => (
+                    //   <input
+                    //     {...startProps}
+                    //     value={
+                    //       filters.createdAtDateRange[0]
+                    //         ? `${formatDate(
+                    //             filters.createdAtDateRange[0]
+                    //           )} To ${formatDate(
+                    //             filters.createdAtDateRange[1]
+                    //           )}`
+                    //         : ""
+                    //     }
+                    //   />
+                    // )}
                   />
                 </LocalizationProvider>
               ) : columnId === "updatedAt" ? (
@@ -300,20 +303,20 @@ export const FilterComponent: React.FC<FilterProps> = ({
                         "updatedAtDateRange"
                       )
                     }
-                    renderInput={(startProps: any, endProps: any) => (
-                      <input
-                        {...startProps}
-                        value={
-                          filters.updatedAtDateRange[0]
-                            ? `${formatDate(
-                                filters.updatedAtDateRange[0]
-                              )} To ${formatDate(
-                                filters.updatedAtDateRange[1]
-                              )}`
-                            : ""
-                        }
-                      />
-                    )}
+                    // renderInput={(startProps: any) => (
+                    //   <input
+                    //     {...startProps}
+                    //     value={
+                    //       filters.updatedAtDateRange[0]
+                    //         ? `${formatDate(
+                    //             filters.updatedAtDateRange[0]
+                    //           )} To ${formatDate(
+                    //             filters.updatedAtDateRange[1]
+                    //           )}`
+                    //         : ""
+                    //     }
+                    //   />
+                    // )}
                   />
                 </LocalizationProvider>
               ) : (

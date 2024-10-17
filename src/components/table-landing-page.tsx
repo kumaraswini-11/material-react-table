@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   MaterialReactTable,
   MRT_ColumnDef,
   MRT_GlobalFilterTextField,
   MRT_SortingState,
-  MRT_TableHeadCellFilterContainer,
+  // MRT_TableHeadCellFilterContainer,
   useMaterialReactTable,
 } from "material-react-table";
 import { Box, IconButton, Tooltip, Pagination } from "@mui/material";
@@ -60,16 +60,16 @@ const TableLandingPage = () => {
     sale_price: true,
   });
   const [sorting, setSorting] = useState<MRT_SortingState>([]);
-  const [filters, setFilters] = useState<any>([
-    { id: "id", desc: false },
-    { id: "name", desc: false },
-    { id: "category", desc: false },
-    { id: "subcategory", desc: false },
-    { id: "createdAt", desc: false },
-    { id: "updatedAt", desc: false },
-    { id: "price", desc: false },
-    { id: "sale_price", desc: false },
-  ]);
+  // const [filters, setFilters] = useState<any>([
+  //   { id: "id", desc: false },
+  //   { id: "name", desc: false },
+  //   { id: "category", desc: false },
+  //   { id: "subcategory", desc: false },
+  //   { id: "createdAt", desc: false },
+  //   { id: "updatedAt", desc: false },
+  //   { id: "price", desc: false },
+  //   { id: "sale_price", desc: false },
+  // ]);
 
   useEffect(() => {
     const fetchStaticSampleData = async () => {

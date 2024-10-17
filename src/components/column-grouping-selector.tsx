@@ -59,6 +59,7 @@ export const ColumnGroupingModal: React.FC<ColumnGroupingModalProps> = ({
           }
           return selected;
         }}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onChange={(event) => handleSelectChange(event as any)}
         sx={{ height: 45 }}
       >

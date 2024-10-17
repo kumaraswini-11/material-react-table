@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Drawer,
-  IconButton,
-  Button,
-  Typography,
-  Box,
-  Divider,
-} from "@mui/material";
+import { Drawer, IconButton, Button, Typography, Box } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface PopupModalProps {
