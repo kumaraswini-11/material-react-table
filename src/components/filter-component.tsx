@@ -210,9 +210,16 @@ export const FilterComponent: React.FC<FilterProps> = ({
                     height: "45px",
                     padding: "8px",
                     borderRadius: "4px",
-                    border: "1px solid #ccc",
                     fontWeight: "500",
+                    color: "#364356e6",
+                    border: "none",
+                    // border: "1px solid #ccc",
                   }}
+                  renderValue={
+                    filters.category.length !== 0
+                      ? undefined
+                      : () => "Select value"
+                  }
                 >
                   {categoryOptions.map((value) => (
                     <MenuItem key={value} value={value}>
@@ -233,9 +240,16 @@ export const FilterComponent: React.FC<FilterProps> = ({
                     height: "45px",
                     padding: "8px",
                     borderRadius: "4px",
-                    border: "1px solid #ccc",
                     fontWeight: "400",
+                    color: "#364356e6",
+                    border: "none",
+                    // border: "1px solid #ccc",
                   }}
+                  renderValue={
+                    filters.subcategory.length !== 0
+                      ? undefined
+                      : () => "Select value"
+                  }
                 >
                   {subcategoryOptions.map((value) => (
                     <MenuItem key={value} value={value}>
@@ -331,7 +345,7 @@ export const FilterComponent: React.FC<FilterProps> = ({
                     height: "45px",
                     padding: "8px",
                     borderRadius: "4px",
-                    border: "1px solid #dd",
+                    border: "1px solid #ddd",
                     fontWeight: "400",
                   }}
                 />

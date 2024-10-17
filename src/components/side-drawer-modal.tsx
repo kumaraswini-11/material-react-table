@@ -22,7 +22,7 @@ export const PopupModal: React.FC<PopupModalProps> = ({
   title,
   children,
   actionButtons = [],
-  width = "400px",
+  width = "450px",
 }) => {
   return (
     <Drawer
@@ -32,8 +32,6 @@ export const PopupModal: React.FC<PopupModalProps> = ({
       sx={{
         "& .MuiDrawer-paper": {
           width: width,
-          paddingBlock: "10px",
-          paddingInline: "21px",
         },
       }}
     >
@@ -45,8 +43,9 @@ export const PopupModal: React.FC<PopupModalProps> = ({
           position: "sticky",
           top: 0,
           zIndex: 1,
-          padding: "8px 0",
-          // marginBottom: "10px",
+          background: "white",
+          paddingBlock: "10px",
+          paddingInline: "21px",
         }}
       >
         {title && (
@@ -62,16 +61,11 @@ export const PopupModal: React.FC<PopupModalProps> = ({
         </IconButton>
       </Box>
 
-      {/* <Divider sx={{ marginTop: 2 }} /> */}
-
       <Box
-        sx={
-          {
-            // overflow: "auto",
-            // scrollbarWidth: "thin",
-            // maxHeight: "100px",
-          }
-        }
+        sx={{
+          maxHeight: "91vh",
+          overflowY: "auto",
+        }}
       >
         <Box
           sx={{
@@ -79,6 +73,8 @@ export const PopupModal: React.FC<PopupModalProps> = ({
             flexDirection: "column",
             gap: 2,
             marginTop: "5px",
+            paddingBlock: "10px",
+            paddingInline: "21px",
           }}
         >
           {children}
@@ -87,10 +83,12 @@ export const PopupModal: React.FC<PopupModalProps> = ({
         {actionButtons.length > 0 && (
           <Box
             sx={{
-              marginTop: 2,
+              marginTop: 1.3,
               display: "flex",
               flexDirection: "column",
               gap: 1,
+              paddingBlock: "10px",
+              paddingInline: "21px",
             }}
           >
             {actionButtons.map((button, index) => (
