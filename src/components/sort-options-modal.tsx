@@ -1,60 +1,56 @@
 import { Box, IconButton, Typography } from "@mui/material";
 import SwapVertOutlinedIcon from "@mui/icons-material/SwapVertOutlined";
-import { useState } from "react";
 import { PopupModal } from "./side-drawer-modal";
+import { MRT_ColumnDef } from "material-react-table";
 
-interface SortSectionProps {
-  label: string;
-  isSort: boolean;
-  onClick: () => void;
+interface SortOptionsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  sortingState: { id: string; desc: boolean }[];
+  setSortingState: React.Dispatch<
+    React.SetStateAction<{ id: string; desc: boolean }[]>
+  >;
+  tableInstance: any;
+  columns: MRT_ColumnDef<any>[];
 }
 
-const SortOption: React.FC<SortSectionProps> = ({ label, isSort, onClick }) => (
-  <Box
-    component="section"
-    sx={{
-      paddingBlock: 0.7,
-      paddingInline: 1,
-      border: "1px solid lightgray",
-      borderRadius: "5px",
-      display: "flex",
-      alignItems: "center",
-      ustifyContent: "flex-start",
-      gap: 0.5,
-      marginBottom: -1,
-    }}
-  >
-    <Typography>{label}</Typography>
-    <IconButton onClick={onClick}>
-      <SwapVertOutlinedIcon
-        sx={{ color: isSort ? "#007bff" : "#6c757d", fontSize: 24 }}
-      />
-    </IconButton>
-  </Box>
-);
-
-export const SortOptionsModal: React.FC<any> = ({
+export const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
   isOpen,
   onClose,
-  sortSections,
-  setSortSections,
+  sortingState,
+  setSortingState,
   tableInstance,
+  columns,
 }) => {
-  const handleSortToggle = (label: string) => {
-    setSortSections((prev: any) =>
-      prev.map((section: any) =>
-        section.label === label
-          ? { ...section, isSort: !section.isSort }
-          : section
-      )
-    );
+  const handleSortToggle = (id: string) => {
+    const columnSorting = sortingState.find((s) => s.id === id);
+
+    if (columnSorting) {
+      const updatedSorting = sortingState.map((section) =>
+        section.id === id ? { ...section, desc: !section.desc } : section
+      );
+      setSortingState(updatedSorting);
+      tableInstance.setSorting(updatedSorting);
+    } else {
+      const newSorting = [...sortingState, { id, desc: false }];
+      setSortingState(newSorting);
+      tableInstance.setSorting(newSorting);
+    }
   };
 
   const clearSort = () => {
-    setSortSections((prev: any) =>
-      prev.map((section: any) => ({ ...section, isSort: false }))
-    );
-    // tableInstance.resetSorting(true);
+    const resetSorting = sortingState.map((section) => ({
+      ...section,
+      desc: false,
+    }));
+
+    setSortingState(resetSorting);
+    tableInstance.resetSorting(true);
+  };
+
+  const getColumnLabel = (id: string) => {
+    const column = columns.find((col) => col.accessorKey === id);
+    return column?.header ?? id;
   };
 
   return (
@@ -70,13 +66,31 @@ export const SortOptionsModal: React.FC<any> = ({
         },
       ]}
     >
-      {sortSections.map((section: any) => (
-        <SortOption
-          key={section.label}
-          label={section.label}
-          isSort={section.isSort}
-          onClick={() => handleSortToggle(section.label)}
-        />
+      {sortingState?.map((section) => (
+        <Box
+          key={section.id}
+          sx={{
+            paddingY: 1,
+            paddingX: 2,
+            border: "1px solid lightgray",
+            borderRadius: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            gap: 1,
+            mb: -1,
+          }}
+        >
+          <Typography variant="body1">{getColumnLabel(section.id)}</Typography>
+          <IconButton onClick={() => handleSortToggle(section.id)}>
+            <SwapVertOutlinedIcon
+              sx={{
+                color: "gray",
+                fontSize: 24,
+              }}
+            />
+          </IconButton>
+        </Box>
       ))}
     </PopupModal>
   );

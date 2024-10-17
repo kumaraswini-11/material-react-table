@@ -49,6 +49,7 @@ export const PopupModal: React.FC<PopupModalProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          position: "sticky",
         }}
       >
         {title && (
@@ -67,40 +68,50 @@ export const PopupModal: React.FC<PopupModalProps> = ({
       {/* <Divider sx={{ marginTop: 2 }} /> */}
 
       <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-          marginTop: 5,
-        }}
+        sx={
+          {
+            // overflow: "auto",
+            // scrollbarWidth: "thin",
+            // maxHeight: "100px",
+          }
+        }
       >
-        {children}
-      </Box>
-
-      {actionButtons.length > 0 && (
         <Box
           sx={{
-            marginTop: 2,
             display: "flex",
             flexDirection: "column",
-            gap: 1,
+            gap: 2,
+            marginTop: 5,
           }}
         >
-          {actionButtons.map((button, index) => (
-            <Button
-              key={index}
-              onClick={button.onClick}
-              variant={button.variant || "contained"}
-              sx={{
-                height: 50,
-                ...button.sx,
-              }}
-            >
-              {button.label}
-            </Button>
-          ))}
+          {children}
         </Box>
-      )}
+
+        {actionButtons.length > 0 && (
+          <Box
+            sx={{
+              marginTop: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+            }}
+          >
+            {actionButtons.map((button, index) => (
+              <Button
+                key={index}
+                onClick={button.onClick}
+                variant={button.variant || "contained"}
+                sx={{
+                  height: 50,
+                  ...button.sx,
+                }}
+              >
+                {button.label}
+              </Button>
+            ))}
+          </Box>
+        )}
+      </Box>
     </Drawer>
   );
 };
