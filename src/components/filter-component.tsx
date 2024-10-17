@@ -15,7 +15,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateRangePicker } from "@mui/x-date-pickers-pro";
 import { Dayjs } from "dayjs";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface FilterProps {
   isOpen: boolean;
   onClose: () => void;
