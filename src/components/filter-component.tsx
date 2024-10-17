@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { MRT_TableInstance } from "material-react-table";
 import {
   Box,
@@ -34,6 +34,12 @@ export const FilterComponent: React.FC<FilterProps> = ({
     createdAtDateRange: [null, null] as [Dayjs | null, Dayjs | null],
     updatedAtDateRange: [null, null] as [Dayjs | null, Dayjs | null],
   });
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+  const [subcategoryOptions, setSubcategoryOptions] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
+  const [salePriceRange, setSalePriceRange] = useState<[number, number]>([
+    0, 0,
+  ]);
 
   const getUniqueValues = (columnId: string): string[] => {
     const uniqueValues = new Set<string>();
@@ -64,13 +70,28 @@ export const FilterComponent: React.FC<FilterProps> = ({
   // const formatDate = (date: Dayjs | null) =>
   //   date ? date.format("MM/DD/YYYY") : "";
 
-  const categoryOptions = useMemo(() => getUniqueValues("category"), [table]);
-  const subcategoryOptions = useMemo(
-    () => getUniqueValues("subcategory"),
-    [table]
-  );
-  const priceRange = useMemo(() => getMinMaxValues("price"), [table]);
-  const salePriceRange = useMemo(() => getMinMaxValues("sale_price"), [table]);
+  useEffect(() => {
+    setCategoryOptions(getUniqueValues("category"));
+    setSubcategoryOptions(getUniqueValues("subcategory"));
+
+    const priceRange = getMinMaxValues("price");
+    setPriceRange([Math.floor(priceRange[0]), Math.floor(priceRange[1])]);
+
+    const salePriceRange = getMinMaxValues("sale_price");
+    setSalePriceRange([
+      Math.floor(salePriceRange[0]),
+      Math.floor(salePriceRange[1]),
+    ]);
+
+    setFilters((prevState) => ({
+      ...prevState,
+      priceRange: priceRange,
+    }));
+    setFilters((prevState) => ({
+      ...prevState,
+      salePriceRange: salePriceRange,
+    }));
+  }, [table]);
 
   const handleClearFilters = () => {
     table.getAllColumns().forEach((column) => column.setFilterValue(undefined));
@@ -129,6 +150,10 @@ export const FilterComponent: React.FC<FilterProps> = ({
   const handleResetFilter = (columnId: string) => {
     setFilters((prevFilters) => {
       switch (columnId) {
+        case "category":
+          return { ...prevFilters, category: [] };
+        case "subcategory":
+          return { ...prevFilters, subcategory: [] };
         case "createdAt":
           return { ...prevFilters, createdAtDateRange: [null, null] };
         case "updatedAt":
@@ -278,6 +303,7 @@ export const FilterComponent: React.FC<FilterProps> = ({
                     handleRangeChange(header.column, newValue, "salePriceRange")
                   }
                   valueLabelDisplay="auto"
+                  defaultValue={salePriceRange[1]}
                   sx={{ width: "83%", marginLeft: "9px" }}
                 />
               ) : columnId === "createdAt" ? (
