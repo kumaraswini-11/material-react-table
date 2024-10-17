@@ -39,12 +39,7 @@ export const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
   };
 
   const clearSort = () => {
-    const resetSorting = sortingState.map((section) => ({
-      ...section,
-      desc: false,
-    }));
-
-    setSortingState(resetSorting);
+    setSortingState([]);
     tableInstance.resetSorting(true);
   };
 
@@ -66,32 +61,42 @@ export const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
         },
       ]}
     >
-      {sortingState?.map((section) => (
-        <Box
-          key={section.id}
-          sx={{
-            paddingY: 1,
-            paddingX: 2,
-            border: "1px solid lightgray",
-            borderRadius: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            gap: 1,
-            mb: -1,
-          }}
-        >
-          <Typography variant="body1">{getColumnLabel(section.id)}</Typography>
-          <IconButton onClick={() => handleSortToggle(section.id)}>
-            <SwapVertOutlinedIcon
-              sx={{
-                color: "gray",
-                fontSize: 24,
-              }}
-            />
-          </IconButton>
-        </Box>
-      ))}
+      {columns?.map((column) => {
+        const sortingForColumn = sortingState.find(
+          (section) => section.id === column.accessorKey
+        );
+
+        return (
+          <Box
+            key={column.accessorKey}
+            sx={{
+              paddingY: 1,
+              paddingX: 2,
+              border: "1px solid lightgray",
+              borderRadius: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              gap: 1,
+              mb: -1,
+            }}
+          >
+            <Typography variant="body1">
+              {getColumnLabel(column.accessorKey as string)}
+            </Typography>
+            <IconButton
+              onClick={() => handleSortToggle(column.accessorKey as string)}
+            >
+              <SwapVertOutlinedIcon
+                sx={{
+                  color: sortingForColumn ? "black" : "gray",
+                  fontSize: 24,
+                }}
+              />
+            </IconButton>
+          </Box>
+        );
+      })}
     </PopupModal>
   );
 };
