@@ -41,6 +41,7 @@ export const ColumnGroupingModal: React.FC<ColumnGroupingModalProps> = ({
           label: "Clear grouping",
           onClick: handleClearGrouping,
           variant: "outlined",
+          sx: { color: "black" },
         },
         {
           label: "Apply grouping",

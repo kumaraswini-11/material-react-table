@@ -58,6 +58,7 @@ export const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
           label: "Clear Sort",
           onClick: clearSort,
           variant: "outlined",
+          sx: { color: "black" },
         },
       ]}
     >

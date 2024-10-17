@@ -167,10 +167,11 @@ export const FilterComponent: React.FC<FilterProps> = ({
             key={header.id}
             sx={{
               padding: "6px",
-              backgroundColor: "#e3e3e3",
+              backgroundColor: "#87ceeb12",
               borderRadius: "4px",
               marginBottom: "-5px",
               boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+              border: "0.5px solid #87ceeb15",
             }}
           >
             <Box
@@ -182,7 +183,7 @@ export const FilterComponent: React.FC<FilterProps> = ({
             >
               <Typography
                 sx={{
-                  color: "black",
+                  color: "#364356e6",
                   fontWeight: 600,
                   fontSize: 14,
                   marginBottom: "5px",
@@ -206,7 +207,7 @@ export const FilterComponent: React.FC<FilterProps> = ({
                   }
                   sx={{
                     width: "87%",
-                    height: "50px",
+                    height: "45px",
                     padding: "8px",
                     borderRadius: "4px",
                     border: "1px solid #ccc",
@@ -229,11 +230,11 @@ export const FilterComponent: React.FC<FilterProps> = ({
                   }
                   sx={{
                     width: "87%",
-                    height: "50px",
+                    height: "45px",
                     padding: "8px",
                     borderRadius: "4px",
                     border: "1px solid #ccc",
-                    fontWeight: "500",
+                    fontWeight: "400",
                   }}
                 >
                   {subcategoryOptions.map((value) => (
@@ -251,6 +252,7 @@ export const FilterComponent: React.FC<FilterProps> = ({
                     handleRangeChange(header.column, newValue, "priceRange")
                   }
                   valueLabelDisplay="auto"
+                  defaultValue={priceRange[1]}
                   sx={{ width: "83%", marginLeft: "9px" }}
                 />
               ) : columnId === "sale_price" ? (
@@ -326,11 +328,11 @@ export const FilterComponent: React.FC<FilterProps> = ({
                   placeholder={`Filter by ${header.column.columnDef.header}`}
                   style={{
                     width: "87%",
-                    height: "50px",
+                    height: "45px",
                     padding: "8px",
                     borderRadius: "4px",
-                    border: "1px solid #ccc",
-                    fontWeight: "500",
+                    border: "1px solid #dd",
+                    fontWeight: "400",
                   }}
                 />
               )}

@@ -32,8 +32,8 @@ export const PopupModal: React.FC<PopupModalProps> = ({
       sx={{
         "& .MuiDrawer-paper": {
           width: width,
-          paddingTop: 1,
-          paddingInline: 3,
+          paddingBlock: "10px",
+          paddingInline: "21px",
         },
       }}
     >
@@ -43,12 +43,16 @@ export const PopupModal: React.FC<PopupModalProps> = ({
           alignItems: "center",
           justifyContent: "space-between",
           position: "sticky",
+          top: 0,
+          zIndex: 1,
+          padding: "8px 0",
+          // marginBottom: "10px",
         }}
       >
         {title && (
           <Typography
             variant="subtitle1"
-            sx={{ color: "#000", fontWeight: 550, fontSize: 15 }}
+            sx={{ color: "#364356e6", fontWeight: 550, fontSize: 15 }}
           >
             {title}
           </Typography>
@@ -74,7 +78,7 @@ export const PopupModal: React.FC<PopupModalProps> = ({
             display: "flex",
             flexDirection: "column",
             gap: 2,
-            marginTop: 5,
+            marginTop: "5px",
           }}
         >
           {children}

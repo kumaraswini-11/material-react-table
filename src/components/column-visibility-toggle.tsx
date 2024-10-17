@@ -127,6 +127,7 @@ export const ShowOrHideColumns: React.FC<ShowOrHideColumnsProps> = ({
           label: "Show all columns",
           onClick: showAllColumns,
           variant: "outlined",
+          sx: { color: "black" },
         },
         {
           label: "Apply",
